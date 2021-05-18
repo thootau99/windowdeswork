@@ -13,46 +13,46 @@ import javax.swing.*;
 
 public class SocketClient {
 
-    static URI uri = URI.create("http://localhost:3000");//«Ø¥ßURI¬°LocalHost,port:3000
+    static URI uri = URI.create("http://localhost:3000");//å»ºç«‹URIç‚ºLocalHost,port:3000
     static IO.Options options = IO.Options.builder()
             .setQuery("x=42")
             .build();
     static Socket socket = IO.socket(uri, options);
-    //«Ø¥ßsocket
-    static ClientUI ui = new ClientUI();//¨Ï¥ÎClientUI©w¸q¦nªºµøµ¡
+    //å»ºç«‹socket
+    static ClientUI ui = new ClientUI();//ä½¿ç”¨ClientUIå®šç¾©å¥½çš„è¦–çª—
 
     public static void main(String[] args) {
         ui.sendMessage.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (ui.inputMessage.getText().length() == 0){ //¨Ï¥Î¨S¦³¿é¤J®É¡A²£¥Í¿ù»~¹ï¸Ü®Ø
-                    JOptionPane.showMessageDialog(null,"½Ğ¿é¤J¤å¦r","error",JOptionPane.ERROR_MESSAGE); 
+                if (ui.inputMessage.getText().length() == 0){ //ä½¿ç”¨æ²’æœ‰è¼¸å…¥æ™‚ï¼Œç”¢ç”ŸéŒ¯èª¤å°è©±æ¡†
+                    JOptionPane.showMessageDialog(null,"è«‹è¼¸å…¥æ–‡å­—","error",JOptionPane.ERROR_MESSAGE); 
                 }
-                else if (ui.inputMessage.getText().length() != 0){  //¨Ï¥ÎªÌ¦³¿é¤J®É
-                    JSONObject messageWillSend = new JSONObject();  //«Ø¥ß¤@­ÓJSONª«¥ó¨Ó¶Ç»¼¸ê®Æ
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//²£¥Í¤é´Á¦r¦ê
-                    LocalDateTime now = LocalDateTime.now();//Â^¨ú¥Ø«e®É¶¡¥H¤Î¤é´Á¡]¤£¦Ò¼{®É°Ï¡^
+                else if (ui.inputMessage.getText().length() != 0){  //ä½¿ç”¨è€…æœ‰è¼¸å…¥æ™‚
+                    JSONObject messageWillSend = new JSONObject();  //å»ºç«‹ä¸€å€‹JSONç‰©ä»¶ä¾†å‚³éè³‡æ–™
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//ç”¢ç”Ÿæ—¥æœŸå­—ä¸²
+                    LocalDateTime now = LocalDateTime.now();//æ“·å–ç›®å‰æ™‚é–“ä»¥åŠæ—¥æœŸï¼ˆä¸è€ƒæ…®æ™‚å€ï¼‰
                     try {
-                        messageWillSend.put("username", ui.NAME);//¨ú±o¿é¤Jªº¨Ï¥ÎªÌ¦WºÙ
-                        messageWillSend.put("message", ui.inputMessage.getText());//¨ú±oClientUI¨Ï¥ÎªÌ¿é¤Jªº°T®§
-                        messageWillSend.put("time", dtf.format(now));//¨ú±o¿é¤J®É¶¡
-                        ui.setFromServer(messageWillSend);//©I¥ssetFromServer§ó·smessages¡]JTextPane¡^¤º®e
+                        messageWillSend.put("username", ui.NAME);//å–å¾—è¼¸å…¥çš„ä½¿ç”¨è€…åç¨±
+                        messageWillSend.put("message", ui.inputMessage.getText());//å–å¾—ClientUIä½¿ç”¨è€…è¼¸å…¥çš„è¨Šæ¯
+                        messageWillSend.put("time", dtf.format(now));//å–å¾—è¼¸å…¥æ™‚é–“
+                        ui.setFromServer(messageWillSend);//å‘¼å«setFromServeræ›´æ–°messagesï¼ˆJTextPaneï¼‰å…§å®¹
                     } catch (JSONException jsonException) {
                         jsonException.printStackTrace();
                     }
-                    socket.emit("sendMessage", messageWillSend.toString());//¹ï·í«e³s½uªºclientµo°e¤@­Ó"sendMessage"¨Æ¥ó
-                    ui.inputMessage.setText("");//¶Ç°e§¹«á±NJTextFieldÂÂªº¤º®e²MªÅ
+                    socket.emit("sendMessage", messageWillSend.toString());//å°ç•¶å‰é€£ç·šçš„clientç™¼é€ä¸€å€‹"sendMessage"äº‹ä»¶
+                    ui.inputMessage.setText("");//å‚³é€å®Œå¾Œå°‡JTextFieldèˆŠçš„å…§å®¹æ¸…ç©º
                 }
             }
         });
-        socket.on("getMessage", new Emitter.Listener() { //ºÊÅ¥¨Ó¦Ûserverªº"getMessage"¨Æ¥ó
+        socket.on("getMessage", new Emitter.Listener() { //ç›£è½ä¾†è‡ªserverçš„"getMessage"äº‹ä»¶
             @Override
-            public void call(Object... args) { // args[0]¬O¨Ó¦Û¨ä¥LClientºİªº°T®§
+            public void call(Object... args) { // args[0]æ˜¯ä¾†è‡ªå…¶ä»–Clientç«¯çš„è¨Šæ¯
                 try {
-                    JSONObject message = new JSONObject(args[0].toString());//«Ø¥ß¤@­ÓJSONª«¥ó¨Ó¶Ç»¼¸ê®Æ
+                    JSONObject message = new JSONObject(args[0].toString());//å»ºç«‹ä¸€å€‹JSONç‰©ä»¶ä¾†å‚³éè³‡æ–™
                     System.out.println(message);
                     System.out.println(args[0]);
-                    ui.setFromServer(message);//©I¥ssetFromServer§ó·smessages¡]JTextPane¡^¤º®e
+                    ui.setFromServer(message);//å‘¼å«setFromServeræ›´æ–°messagesï¼ˆJTextPaneï¼‰å…§å®¹
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

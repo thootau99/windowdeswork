@@ -8,29 +8,29 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ClientUI {
-    String NAME = "Default"; //¨Ï¥ÎªÌ¹w³]¦WºÙ
+    String NAME = "Default"; //ä½¿ç”¨è€…é è¨­åç¨±
     String allMessage = "";
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     JPanel messagePanel = new JPanel();
-    JTextPane messages = new JTextPane(); //²á¤Ñ«Ç°T®§
-    JTextField inputMessage = new JTextField(); //¨Ï¥ÎªÌ¿é¤J¤å¦r
-    JButton sendMessage = new JButton("Send Message"); //¶Ç°e¿é¤J¤å¦rµ¹²á¤Ñ«Ç
+    JTextPane messages = new JTextPane(); //èŠå¤©å®¤è¨Šæ¯
+    JTextField inputMessage = new JTextField(); //ä½¿ç”¨è€…è¼¸å…¥æ–‡å­—
+    JButton sendMessage = new JButton("Send Message"); //å‚³é€è¼¸å…¥æ–‡å­—çµ¦èŠå¤©å®¤
     JMenuBar menu = new JMenuBar();
     JMenu nameMenu = new JMenu("name");
-    JMenuItem setName = new JMenuItem("setName"); // ¶}©l¹ï¸Üµ¡¨Ó§ó§ï¨Ï¥ÎªÌ¦W¦r
+    JMenuItem setName = new JMenuItem("setName"); // é–‹å§‹å°è©±çª—ä¾†æ›´æ”¹ä½¿ç”¨è€…åå­—
 
     public void setFromServer (JSONObject message) throws JSONException {
         String combine = String.format("%s %s : %s \n", message.get("time"), message.get("username"), message.get("message"));
-        allMessage += combine; //¥[¤J·s¦r¦ê¡]combine¡^§ó·s²{¦³¦r¦ê¡]allMessage¡^
-        messages.setText(allMessage);//§ó·s¥ş³¡°T®§¦r¦ê
-        frame.repaint();//§ó·s²á¤Ñµøµ¡µøµ¡¤º®e
+        allMessage += combine; //åŠ å…¥æ–°å­—ä¸²ï¼ˆcombineï¼‰æ›´æ–°ç¾æœ‰å­—ä¸²ï¼ˆallMessageï¼‰
+        messages.setText(allMessage);//æ›´æ–°å…¨éƒ¨è¨Šæ¯å­—ä¸²
+        frame.repaint();//æ›´æ–°èŠå¤©è¦–çª—è¦–çª—å…§å®¹
     }
 
     public void setInit() {
         menu.add(nameMenu);
         nameMenu.add(setName);
-        setName.addActionListener(new ActionListener() { //ÀË¬d¨Ï¥ÎªÌ¨Ï§_¦³­n§ó§ï¦W¦r
+        setName.addActionListener(new ActionListener() { //æª¢æŸ¥ä½¿ç”¨è€…ä½¿å¦æœ‰è¦æ›´æ”¹åå­—
             @Override
             public void actionPerformed(ActionEvent e) {
                 String name = (String) JOptionPane.showInputDialog(
