@@ -1,15 +1,15 @@
 import {createServer} from 'http'
 import {Server, Socket} from 'socket.io'
-//«Ø¥ß¦øªA¾¹
+//å»ºç«‹ä¼ºæœå™¨
 const httpServer = createServer();
 const io = new Server(httpServer, {});
 
-io.on("connection", (socket) => {//«Ø¥ß³s½u
-  socket.on("sendMessage", (arg) => { //ºÊÅ¥¨Ó¦Ûclientªº"sendMessage"¨Æ¥ó
-    console.log("someome sended message", arg)//Åã¥Ü¦³¤H­«°e°T®§¦bterminal¤W
-    socket.broadcast.emit("getMessage", arg)//¼s¼½µo°eµ¹©Ò¦³client"getMessage"
+io.on("connection", (socket) => {//å»ºç«‹é€£ç·š
+  socket.on("sendMessage", (arg) => { //ç›£è½ä¾†è‡ªclientçš„"sendMessage"äº‹ä»¶
+    console.log("someome sended message", arg)//é¡¯ç¤ºæœ‰äººé‡é€è¨Šæ¯åœ¨terminalä¸Š
+    socket.broadcast.emit("getMessage", arg)//å»£æ’­ç™¼é€çµ¦æ‰€æœ‰client"getMessage"
   })
 })
 
-//«ü©w²âÅ¥port 3000
+//æŒ‡å®šè†è½port 3000
 httpServer.listen(3000)
