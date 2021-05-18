@@ -7,10 +7,12 @@ import org.json.JSONObject;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 
 public class SocketClient {
 
@@ -20,7 +22,7 @@ public class SocketClient {
     static Socket socket = IO.socket(uri, options);
     //建立socket
     static ClientUI ui = new ClientUI();//使用ClientUI定義好的視窗
-
+    static String socketId = "";
     public static void main(String[] args) {
         ui.sendMessage.addActionListener(new ActionListener() { 
             @Override
@@ -62,6 +64,31 @@ public class SocketClient {
                 socket.emit("changeName", name); // emit changeName to server, notify other clients that my name changed.
             }
         });
+
+        ui.allOnlineUsers.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    String chosenUser = (String) ui.allOnlineUsers.getSelectedValue();
+                    chosenUser = chosenUser.split(",")[1];
+                    String number = (String) JOptionPane.showInputDialog(
+                            ui.frame,
+                            "Which number is that you want to another user guess? \n 4 numbers",
+                            "Guess number set",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            null,
+                            "0000"
+                    );
+                    JSONObject numberWillSend = new JSONObject();
+                    numberWillSend.put("id", chosenUser);
+                    numberWillSend.put("number", number);
+                    socket.emit("guessNumber", numberWillSend.toString());
+                }
+            }
+        });
+
+
         socket.on("getMessage", new Emitter.Listener() { //監聽來自server的"getMessage"事件
             @Override
             public void call(Object... args) { // args[0]是來自其他Client端的訊息
@@ -91,6 +118,23 @@ public class SocketClient {
                 ui.setOnlineUser(users);
             }
         });
+
+        socket.on("guessNumber", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                ui.setGuessNumber((String) args[0]);
+            }
+        });
+
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                socketId = socket.id();
+            }
+        });
+
+
+        System.out.println();
         ui.setInit();
         socket.connect();
     }

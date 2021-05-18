@@ -3,7 +3,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -12,16 +14,55 @@ public class ClientUI {
     String allMessage = "";
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
-    JPanel messagePanel = new JPanel();
-    JPanel allMessageAndOnlineUsers = new JPanel();
+    JPanel messagePanel = new JPanel(); // Panel -> inputMessage + sendMessage
+    JPanel allMessageAndOnlineUsers = new JPanel(); // Panel -> message + allOnlineUsers
     JTextPane messages = new JTextPane(); //聊天室訊息
-    DefaultListModel onlineUsersModel = new DefaultListModel();
-    JList allOnlineUsers = new JList(onlineUsersModel);
+    DefaultListModel onlineUsersModel = new DefaultListModel(); // The model that the JList should show
+    JList allOnlineUsers = new JList(onlineUsersModel); // The list that show all of the online users.
     JTextField inputMessage = new JTextField(); //使用者輸入文字
     JButton sendMessage = new JButton("Send Message"); //傳送輸入文字給聊天室
     JMenuBar menu = new JMenuBar();
     JMenu nameMenu = new JMenu("name");
     JMenuItem setName = new JMenuItem("setName"); // 開始對話窗來更改使用者名字
+
+    public void setGuessNumber (String number) {
+        int A = 0;
+        int B = 0;
+        while (A != 4) {
+            String numberSplit[] = number.split("");
+            String guessNumber = (String) JOptionPane.showInputDialog(
+                    frame,
+                    String.format("Current State %s A %s B, please enter the 4 digits number to guess.", A, B),
+                    "Number guessing",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    "0000"
+            );
+            A = 0;
+            B = 0;
+            String guessNumberSplit[] = guessNumber.split("");
+            int index = 0;
+            int innerIndex = 0;
+            for (String c : guessNumberSplit) {
+                for (String innerC : numberSplit) {
+                    if (index == innerIndex && c.equals(innerC)){
+                        ++A;
+                        break;
+                    }
+                    if (index != innerIndex && c.equals(innerC)){
+                        ++B;
+                        break;
+                    }
+                    innerIndex ++;
+                }
+                index ++;
+                innerIndex = index;
+            }
+        }
+
+    }
+
 
     public void setFromServer (JSONObject message) throws JSONException {
         String combine = String.format("%s %s : %s \n", message.get("time"), message.get("username"), message.get("message"));
@@ -34,7 +75,7 @@ public class ClientUI {
         onlineUsersModel.clear(); // Clear the all element in the JList
         for (int i = 0; i < users.length(); i++) {
             JSONObject user = users.getJSONObject(i); // Get the i th element of the JSONArray
-            onlineUsersModel.addElement(String.format("Name: %s, %s \n", user.get("name"), user.get("id"))); // "Name: name, id: id"
+            onlineUsersModel.addElement(String.format("Name: %s,%s", user.get("name"), user.get("id"))); // "Name: name, id: id"
         }
         allOnlineUsers.repaint(); // Repaint the JList
     }
@@ -42,11 +83,9 @@ public class ClientUI {
     public void setInit() {
         menu.add(nameMenu);
         nameMenu.add(setName);
-
         allMessageAndOnlineUsers.setLayout(new GridLayout(1, 2));
         allMessageAndOnlineUsers.add(messages);
         allMessageAndOnlineUsers.add(allOnlineUsers);
-
         messagePanel.setLayout(new GridLayout(1, 2));
         messagePanel.add(inputMessage);
         messagePanel.add(sendMessage);

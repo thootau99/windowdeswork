@@ -23,7 +23,7 @@ var httpServer = http_1.createServer();
 var io = new socket_io_1.Server(httpServer, {});
 var onlineUser = [];
 io.on("connection", function (socket) {
-    onlineUser = __spreadArray(__spreadArray([], onlineUser), [{ id: socket.id, name: "default name" }]);
+    onlineUser = __spreadArray(__spreadArray([], onlineUser), [{ id: socket.id, name: "default name" }]); // add user object to onlineUser
     var updateUser = function () {
         socket.emit("receiveOnlineUserList", JSON.stringify(onlineUser));
         socket.broadcast.emit("receiveOnlineUserList", JSON.stringify(onlineUser));
@@ -35,18 +35,19 @@ io.on("connection", function (socket) {
         socket.broadcast.emit("getMessage", arg); //廣播發送給所有client"getMessage"
     });
     socket.on("changeName", function (arg) {
-        onlineUser = onlineUser.map(function (user) { return user.id === socket.id ? __assign(__assign({}, user), { name: arg }) : user; });
+        onlineUser = onlineUser.map(function (user) { return user.id === socket.id ? __assign(__assign({}, user), { name: arg }) : user; }); // update username
         console.log(socket.id + " has change name to " + arg);
-        console.log('Online user:', onlineUser);
-        updateUser();
+        updateUser(); // update the change result to all clients.
     });
-    socket.on("askOnlineUserList", function () {
-        socket.emit("receiveOnlineUserList", JSON.stringify(onlineUser));
+    socket.on("guessNumber", function (arg) {
+        var argToJson = JSON.parse(arg);
+        socket.broadcast.to(argToJson.id).emit("guessNumber", argToJson.number);
+        console.log(argToJson.id + " is guessing " + argToJson.number);
     });
     socket.on("disconnect", function () {
         onlineUser = onlineUser.filter(function (user) { return user.id !== socket.id; });
-        console.log("User " + socket.id + " has connected.");
+        console.log("User " + socket.id + " has disconnected.");
     });
 });
-//指定聆聽port 3000
+//Socket.io serve at port 3000
 httpServer.listen(3000);
