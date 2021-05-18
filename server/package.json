@@ -2,12 +2,12 @@
   "name": "widowserver",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "tsc index.ts && node index.js"
   },
   "dependencies": {
+    "@types/socket.io": "^3.0.2",
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "socket.io": "^4.1.1",

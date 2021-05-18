@@ -1,6 +1,7 @@
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,17 +45,50 @@ public class SocketClient {
                 }
             }
         });
+        ui.setName.addActionListener(new ActionListener() { //檢查使用者使否有要更改名字
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = (String) JOptionPane.showInputDialog(
+                        ui.frame,
+                        "What is your name?",
+                        "Name set",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        ui.NAME
+
+                );
+                ui.NAME = name;
+                socket.emit("changeName", name); // emit changeName to server, notify other clients that my name changed.
+            }
+        });
         socket.on("getMessage", new Emitter.Listener() { //監聽來自server的"getMessage"事件
             @Override
             public void call(Object... args) { // args[0]是來自其他Client端的訊息
                 try {
+                    /**
+                     * Shape of message Object
+                     * time String - The time that the message has been sent.
+                     * username String - The username that send the message.
+                     * message String - The content of message.
+                     * */
                     JSONObject message = new JSONObject(args[0].toString());//建立一個JSON物件來傳遞資料
-                    System.out.println(message);
-                    System.out.println(args[0]);
                     ui.setFromServer(message);//呼叫setFromServer更新messages（JTextPane）內容
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+        });
+        socket.on("receiveOnlineUserList", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                /**
+                 * Shape of user Object
+                 * name String
+                 * id String
+                 * */
+                JSONArray users = new JSONArray(args[0].toString()); // make the JSON string to JSONArray.
+                ui.setOnlineUser(users);
             }
         });
         ui.setInit();
