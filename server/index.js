@@ -19,6 +19,7 @@ exports.__esModule = true;
 var http_1 = require("http");
 var socket_io_1 = require("socket.io");
 //建立伺服器
+var IP = "0.0.0.0";
 var httpServer = http_1.createServer();
 var io = new socket_io_1.Server(httpServer, {});
 var onlineUser = [];
@@ -47,7 +48,10 @@ io.on("connection", function (socket) {
     socket.on("disconnect", function () {
         onlineUser = onlineUser.filter(function (user) { return user.id !== socket.id; });
         console.log("User " + socket.id + " has disconnected.");
+        updateUser();
     });
 });
 //Socket.io serve at port 3000
-httpServer.listen(3000);
+httpServer.listen(3000, IP, function () {
+    console.log("Server listening on " + IP);
+});

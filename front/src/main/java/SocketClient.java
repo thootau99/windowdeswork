@@ -16,7 +16,7 @@ import javax.swing.event.MouseInputAdapter;
 
 public class SocketClient {
 
-    static URI uri = URI.create("http://localhost:3000");//建立URI為LocalHost,port:3000
+    static URI uri = URI.create("http://thootau.synology.me:48763");//建立URI為LocalHost,port:3000
     static IO.Options options = IO.Options.builder()
             .build();
     static Socket socket = IO.socket(uri, options);
@@ -115,7 +115,7 @@ public class SocketClient {
                  * id String
                  * */
                 JSONArray users = new JSONArray(args[0].toString()); // make the JSON string to JSONArray.
-                ui.setOnlineUser(users);
+                ui.setOnlineUser(users, socketId);
             }
         });
 

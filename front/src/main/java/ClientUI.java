@@ -71,10 +71,14 @@ public class ClientUI {
         frame.repaint();//更新聊天視窗視窗內容
     }
 
-    public void setOnlineUser(JSONArray users) {
+    public void setOnlineUser(JSONArray users, String socketId) {
         onlineUsersModel.clear(); // Clear the all element in the JList
         for (int i = 0; i < users.length(); i++) {
             JSONObject user = users.getJSONObject(i); // Get the i th element of the JSONArray
+            if (user.get("id").equals(socketId)) {
+                onlineUsersModel.addElement(String.format("Name: %s (self)", user.get("name")));
+                continue;
+            }
             onlineUsersModel.addElement(String.format("Name: %s,%s", user.get("name"), user.get("id"))); // "Name: name, id: id"
         }
         allOnlineUsers.repaint(); // Repaint the JList

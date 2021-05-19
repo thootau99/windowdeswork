@@ -1,6 +1,7 @@
 import {createServer} from 'http'
 import {Server, Socket} from 'socket.io'
 //建立伺服器
+const IP = "0.0.0.0"
 const httpServer = createServer();
 const io = new Server(httpServer, {});
 
@@ -56,4 +57,6 @@ io.on("connection", (socket:Socket) => {//建立連線
 })
 
 //Socket.io serve at port 3000
-httpServer.listen(3000)
+httpServer.listen(3000, IP, () => {
+  console.log(`Server listening on ${IP}`)
+})
