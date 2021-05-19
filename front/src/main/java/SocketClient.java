@@ -16,7 +16,7 @@ import javax.swing.event.MouseInputAdapter;
 
 public class SocketClient {
 
-    static URI uri = URI.create("http://thootau.synology.me:48763");//建立URI為LocalHost,port:3000
+    static URI uri = URI.create("http://thootau.synology.me:48763");//
     static IO.Options options = IO.Options.builder()
             .build();
     static Socket socket = IO.socket(uri, options);
