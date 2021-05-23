@@ -9,12 +9,17 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ClientUI {
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+public class ClientUI{
     String NAME = "Default"; //使用者預設名稱
     String allMessage = "";
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     JPanel messagePanel = new JPanel(); // Panel -> inputMessage + sendMessage
+    
     JPanel allMessageAndOnlineUsers = new JPanel(); // Panel -> message + allOnlineUsers
     JTextPane messages = new JTextPane(); //聊天室訊息
     DefaultListModel onlineUsersModel = new DefaultListModel(); // The model that the JList should show
@@ -24,7 +29,17 @@ public class ClientUI {
     JMenuBar menu = new JMenuBar();
     JMenu nameMenu = new JMenu("name");
     JMenuItem setName = new JMenuItem("setName"); // 開始對話窗來更改使用者名字
-
+    /*public ClientUI(){
+        //this.addKeyListener(new MyKeyListener()); 
+        this.addKeyListener(new KeyAdapter(){
+            public void keyPressed(KeyEvent e){
+                if(e.getKeyCode() == 13){
+                    System.out.println("你按了空白鍵");
+                }  
+            }
+        });
+    }*/
+    
     public void setGuessNumber (String number) {
         int A = 0;
         int B = 0;
@@ -90,10 +105,12 @@ public class ClientUI {
         allMessageAndOnlineUsers.setLayout(new GridLayout(1, 2));
         allMessageAndOnlineUsers.add(messages);
         allMessageAndOnlineUsers.add(allOnlineUsers);
+        //JScrollPane =new JScrollPane(allMessageAndOnlineUsers);
         messagePanel.setLayout(new GridLayout(1, 2));
         messagePanel.add(inputMessage);
         messagePanel.add(sendMessage);
-        panel.add(allMessageAndOnlineUsers);
+        panel.add(new JScrollPane(allMessageAndOnlineUsers,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         panel.add(messagePanel);
         panel.setLayout(new GridLayout(2,1));
         frame.add(panel);
@@ -101,5 +118,12 @@ public class ClientUI {
         frame.setSize(400, 400);
         frame.setVisible(true);
     }
+    /*class MyKeyListener extends KeyAdapter{
+        public void keyPressed(KeyEvent e){
+            if(e.getKeyCode() == 13){
+                System.out.println("你按了空白鍵");
+            }  
+        }
+    }*/
 
 }

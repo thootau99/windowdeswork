@@ -14,9 +14,12 @@ import java.time.LocalDateTime;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 
-public class SocketClient {
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-    static URI uri = URI.create("http://thootau.synology.me:48763");//
+public class SocketClient {
+    //static URI uri = URI.create("http://thootau.synology.me:48763");//建立URI為LocalHost,port:3000
+    static URI uri = URI.create("http://localhost:3000");
     static IO.Options options = IO.Options.builder()
             .build();
     static Socket socket = IO.socket(uri, options);
@@ -24,27 +27,20 @@ public class SocketClient {
     static ClientUI ui = new ClientUI();//使用ClientUI定義好的視窗
     static String socketId = "";
     public static void main(String[] args) {
+        ui.inputMessage.addKeyListener(new KeyAdapter(){
+            public void keyPressed(KeyEvent e){
+                switch(e.getKeyCode()){
+                    case KeyEvent.VK_ENTER:
+                    updateMessage();
+                    break;
+                    default: break;
+                }
+            }
+        });
         ui.sendMessage.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (ui.inputMessage.getText().length() == 0){ //使用沒有輸入時，產生錯誤對話框
-                    JOptionPane.showMessageDialog(null,"請輸入文字","error",JOptionPane.ERROR_MESSAGE); 
-                }
-                else if (ui.inputMessage.getText().length() != 0){  //使用者有輸入時
-                    JSONObject messageWillSend = new JSONObject();  //建立一個JSON物件來傳遞資料
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//產生日期字串
-                    LocalDateTime now = LocalDateTime.now();//擷取目前時間以及日期（不考慮時區）
-                    try {
-                        messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
-                        messageWillSend.put("message", ui.inputMessage.getText());//取得ClientUI使用者輸入的訊息
-                        messageWillSend.put("time", dtf.format(now));//取得輸入時間
-                        ui.setFromServer(messageWillSend);//呼叫setFromServer更新messages（JTextPane）內容
-                    } catch (JSONException jsonException) {
-                        jsonException.printStackTrace();
-                    }
-                    socket.emit("sendMessage", messageWillSend.toString());//對當前連線的client發送一個"sendMessage"事件
-                    ui.inputMessage.setText("");//傳送完後將JTextField舊的內容清空
-                }
+                updateMessage();
             }
         });
         ui.setName.addActionListener(new ActionListener() { //檢查使用者使否有要更改名字
@@ -138,4 +134,25 @@ public class SocketClient {
         ui.setInit();
         socket.connect();
     }
+    public static void updateMessage(){
+        if (ui.inputMessage.getText().length() == 0){ //使用沒有輸入時，產生錯誤對話框
+            JOptionPane.showMessageDialog(null,"請輸入文字","error",JOptionPane.ERROR_MESSAGE); 
+        }
+        else if (ui.inputMessage.getText().length() != 0){  //使用者有輸入時
+            JSONObject messageWillSend = new JSONObject();  //建立一個JSON物件來傳遞資料
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//產生日期字串
+            LocalDateTime now = LocalDateTime.now();//擷取目前時間以及日期（不考慮時區）
+            try {
+                messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
+                messageWillSend.put("message", ui.inputMessage.getText());//取得ClientUI使用者輸入的訊息
+                messageWillSend.put("time", dtf.format(now));//取得輸入時間
+                ui.setFromServer(messageWillSend);//呼叫setFromServer更新messages（JTextPane）內容
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
+            }
+            socket.emit("sendMessage", messageWillSend.toString());//對當前連線的client發送一個"sendMessage"事件
+            ui.inputMessage.setText("");//傳送完後將JTextField舊的內容清空
+        }
+    }
+    
 }
