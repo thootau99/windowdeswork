@@ -58,5 +58,5 @@ io.on("connection", (socket:Socket) => {//建立連線
 
 //Socket.io serve at port 3000
 httpServer.listen(3000, IP, () => {
-  console.log(`Server listening on ${IP}`)
+  console.log(`Server is listening on ${IP}`)
 })
