@@ -5,8 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "compile": "tsc && node index.js",
-    "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"npm run compile\""
+    "dev": "npx nodemon index.js"
   },
   "dependencies": {
     "@types/socket.io": "^3.0.2",
