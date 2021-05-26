@@ -103,14 +103,13 @@ public class ClientUI{
         menu.add(nameMenu);
         nameMenu.add(setName);
         allMessageAndOnlineUsers.setLayout(new GridLayout(1, 2));
-        allMessageAndOnlineUsers.add(messages);
+        allMessageAndOnlineUsers.add(new JScrollPane(messages,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         allMessageAndOnlineUsers.add(allOnlineUsers);
-        //JScrollPane =new JScrollPane(allMessageAndOnlineUsers);
         messagePanel.setLayout(new GridLayout(1, 2));
         messagePanel.add(inputMessage);
         messagePanel.add(sendMessage);
-        panel.add(new JScrollPane(allMessageAndOnlineUsers,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        panel.add(allMessageAndOnlineUsers);
         panel.add(messagePanel);
         panel.setLayout(new GridLayout(2,1));
         frame.add(panel);
