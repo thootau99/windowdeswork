@@ -7,12 +7,17 @@ const httpServer = createServer();
 const io = new Server(httpServer, {});
 
 let onlineUser = []
+let battles = []
+function getSelf(id, onlineUser) {
+  return onlineUser.filter(user => user.id === id)
+}
 
 
 io.on("connection", (socket) => {//建立連線
 
 
   onlineUser = [...onlineUser, {id: socket.id, name: "default name"}] // add user object to onlineUser
+  
   const updateUser = () => { // Function that update the onlineUser list to all clients.
     socket.emit("receiveOnlineUserList", JSON.stringify(onlineUser)); 
     socket.broadcast.emit("receiveOnlineUserList", JSON.stringify(onlineUser));
@@ -34,10 +39,18 @@ io.on("connection", (socket) => {//建立連線
 
   socket.on("guessNumber", (arg) => {
     const argToJson = JSON.parse(arg);
-    socket.broadcast.to(argToJson.id).emit("guessNumber", argToJson.number);
+    const argWillSend = {battleid:`${socket.id}${argToJson.id}`, p1:socket.id, p2:argToJson.id, number: argToJson.number}
+    socket.broadcast.emit("guessNumber", JSON.stringify(argWillSend));
+    battles = [...battles, argWillSend]
+    console.log(argWillSend)
     console.log(`${argToJson.id} is guessing ${argToJson.number}`)
   })
 
+  socket.on("getBattleList", () => {
+    console.log("All user updating battlelist...")
+    socket.broadcast.emit("setBattleList", JSON.stringify(battles))
+    socket.emit("setBattleList", JSON.stringify(battles))
+  })
 
   socket.on("disconnect", () => {
     onlineUser = onlineUser.filter(user => user.id !== socket.id)

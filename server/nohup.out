@@ -1,0 +1,55 @@
+
+> widowserver@1.0.0 dev
+> npx nodemon index.js
+
+glob error [Error: EACCES: permission denied, scandir '/root/.npm/_logs'] {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'scandir',
+  path: '/root/.npm/_logs'
+}
+npm ERR! code EACCES
+npm ERR! syscall open
+npm ERR! path /root/.npm/index-v5/96/73/8504854f92148482f79c8ef4340f116b8cd7786462958b68dcb694424c26
+npm ERR! errno -13
+npm ERR! 
+npm ERR! Your cache folder contains root-owned files, due to a bug in
+npm ERR! previous versions of npm which has since been addressed.
+npm ERR! 
+npm ERR! To permanently fix this problem, please run:
+npm ERR!   sudo chown -R 1026:100 "/root/.npm"
+
+> widowserver@1.0.0 dev
+> npx nodemon index.js
+
+glob error [Error: EACCES: permission denied, scandir '/root/.npm/_logs'] {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'scandir',
+  path: '/root/.npm/_logs'
+}
+[33m[nodemon] 2.0.7[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,json[39m
+[32m[nodemon] starting `node index.js`[39m
+┌───────────────────────────────────────────────────┐
+│            nodemon update check failed            │
+│        Try running with sudo or get access        │
+│       to the local update config store via        │
+│ sudo chown -R $USER:$(id -gn $USER) /root/.config │
+└───────────────────────────────────────────────────┘
+node:events:342
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EBADF: bad file descriptor, read
+Emitted 'error' event on ReadStream instance at:
+    at emitErrorNT (node:internal/streams/destroy:193:8)
+    at errorOrDestroy (node:internal/streams/destroy:256:7)
+    at node:internal/fs/streams:256:9
+    at FSReqCallback.wrapper [as oncomplete] (node:fs:658:5) {
+  errno: -9,
+  code: 'EBADF',
+  syscall: 'read'
+}
