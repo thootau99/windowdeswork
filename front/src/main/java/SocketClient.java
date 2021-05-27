@@ -18,8 +18,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class SocketClient {
-    //static URI uri = URI.create("http://thootau.synology.me:48763");//建立URI為LocalHost,port:3000
-    static URI uri = URI.create("http://localhost:3000");
+    static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
+    // static URI uri = URI.create("http://localhost:3000");
     static IO.Options options = IO.Options.builder()
             .build();
     static Socket socket = IO.socket(uri, options);
@@ -115,14 +115,35 @@ public class SocketClient {
             }
         });
 
-        socket.on("guessNumber", new Emitter.Listener() {
+        socket.on("setBattleList", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                ui.setGuessNumber((String) args[0]);
+                JSONArray battles = new JSONArray(args[0].toString());
+                ui.setBattles(battles);
             }
         });
 
-        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+        socket.on("guessNumber", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject arg = new JSONObject(args[0].toString());
+                if (arg.get("p2").equals(socketId)) {
+                    int agree = JOptionPane.showConfirmDialog(null, "Would you like to accept the challenge?", "Challenge comes!", JOptionPane.YES_NO_OPTION);
+                    System.out.println(agree);
+
+                    if (agree == JOptionPane.YES_OPTION) {
+                        System.out.println(arg.get("p1") + " vs " + arg.get("p2"));
+                        socket.emit("getBattleList");
+                        boolean result = ui.setGuessNumber((String) arg.get("number"));
+                        JSONObject battle = new JSONObject();
+                        battle.put("battle", arg.toString());
+                        battle.put("result", result);
+                        socket.emit("finishBattle", battle.toString());
+                    } else if (agree == JOptionPane.NO_OPTION) {
+                    }
+                }
+            }
+        }).on(Socket.EVENT_CONNECT, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 socketId = socket.id();

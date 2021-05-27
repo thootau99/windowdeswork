@@ -39,11 +39,28 @@ io.on("connection", (socket) => {//建立連線
 
   socket.on("guessNumber", (arg) => {
     const argToJson = JSON.parse(arg);
-    const argWillSend = {battleid:`${socket.id}${argToJson.id}`, p1:socket.id, p2:argToJson.id, number: argToJson.number}
+    const argWillSend = {battleid:`${socket.id}${argToJson.id}`, p1:socket.id, p2:argToJson.id, number: argToJson.number, finished: false, winner: '', players: [{team1: [socket.id]}, {team2: [argToJson.id]}]}
     socket.broadcast.emit("guessNumber", JSON.stringify(argWillSend));
     battles = [...battles, argWillSend]
     console.log(argWillSend)
     console.log(`${argToJson.id} is guessing ${argToJson.number}`)
+  })
+
+  socket.on("finishBattle", (arg) => {
+    const result = JSON.parse(arg)
+    result.battle = JSON.parse(result.battle)
+    battles = battles.map(battle => {
+      if (battle.battleid === result.battle.battleid) {
+        return {
+          ...battle,
+          winner: result.result,
+          finished: true
+        }
+      } else return battle
+    })
+    console.log("battle finished...", battles, result)
+    socket.broadcast.emit("setBattleList", JSON.stringify(battles))
+    socket.emit("setBattleList", JSON.stringify(battles))
   })
 
   socket.on("getBattleList", () => {

@@ -19,11 +19,15 @@ public class ClientUI{
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     JPanel messagePanel = new JPanel(); // Panel -> inputMessage + sendMessage
-    
-    JPanel allMessageAndOnlineUsers = new JPanel(); // Panel -> message + allOnlineUsers
+    JPanel battleAndOnlineUsers = new JPanel();
+    JPanel allMessageAndBattleAndOnlineUsers = new JPanel(); // Panel -> message + allOnlineUsers
     JTextPane messages = new JTextPane(); //聊天室訊息
     DefaultListModel onlineUsersModel = new DefaultListModel(); // The model that the JList should show
     JList allOnlineUsers = new JList(onlineUsersModel); // The list that show all of the online users.
+
+    DefaultListModel battleModel = new DefaultListModel();
+    JList allBattles = new JList(battleModel);
+
     JTextField inputMessage = new JTextField(); //使用者輸入文字
     JButton sendMessage = new JButton("Send Message"); //傳送輸入文字給聊天室
     JMenuBar menu = new JMenuBar();
@@ -40,11 +44,14 @@ public class ClientUI{
         });
     }*/
     
-    public void setGuessNumber (String number) {
+    public boolean setGuessNumber (String number) {
         int A = 0;
         int B = 0;
+        int count = -1;
         while (A != 4) {
-            String numberSplit[] = number.split("");
+            if (count > 5) return false;
+            count ++;
+            String tempNumber = number;
             String guessNumber = (String) JOptionPane.showInputDialog(
                     frame,
                     String.format("Current State %s A %s B, please enter the 4 digits number to guess.", A, B),
@@ -57,25 +64,20 @@ public class ClientUI{
             A = 0;
             B = 0;
             String guessNumberSplit[] = guessNumber.split("");
-            int index = 0;
-            int innerIndex = 0;
-            for (String c : guessNumberSplit) {
-                for (String innerC : numberSplit) {
-                    if (index == innerIndex && c.equals(innerC)){
-                        ++A;
-                        break;
+            for (int i = 0; i < guessNumberSplit.length; i++) {
+                int position = tempNumber.indexOf(guessNumberSplit[i]);
+                if (position >= 0) { // guess number contain in number
+                    if (position + A == i) {
+                        StringBuilder result = new StringBuilder(tempNumber);
+                        tempNumber = result.deleteCharAt(position).toString();
+                        A ++;
                     }
-                    if (index != innerIndex && c.equals(innerC)){
-                        ++B;
-                        break;
-                    }
-                    innerIndex ++;
+                    else if (position + A != i) B ++;
                 }
-                index ++;
-                innerIndex = index;
             }
         }
-
+        if (A >= 4) return true;
+        else return false;
     }
 
 
@@ -99,17 +101,41 @@ public class ClientUI{
         allOnlineUsers.repaint(); // Repaint the JList
     }
 
+    public void setBattles(JSONArray battles) {
+        battleModel.clear();
+        for (int i = 0; i < battles.length(); i++) {
+            JSONObject battle = battles.getJSONObject(i);
+            if ((boolean) battle.get("finished") == false) {
+                battleModel.addElement(String.format("Battle is between %s and %s !", battle.get("p1"), battle.get("p2")));
+            } else {
+                // true -> p2 win, false -> p1 win
+                boolean result = (boolean) battle.get("winner");
+                if (result) {
+                    battleModel.addElement(String.format("The legendary battle overed, %s wins!", battle.get("p2")));
+                } else {
+                    battleModel.addElement(String.format("%s has torn %s into pieces!", battle.get("p1"), battle.get("p2")));
+                }
+            }
+        }
+        allBattles.repaint();
+    }
+
     public void setInit() {
         menu.add(nameMenu);
         nameMenu.add(setName);
-        allMessageAndOnlineUsers.setLayout(new GridLayout(1, 2));
-        allMessageAndOnlineUsers.add(new JScrollPane(messages,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+        allMessageAndBattleAndOnlineUsers.setLayout(new GridLayout(1, 2));
+        allMessageAndBattleAndOnlineUsers.add(new JScrollPane(messages,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-        allMessageAndOnlineUsers.add(allOnlineUsers);
+
+        battleAndOnlineUsers.setLayout(new GridLayout(2, 1));
+        battleAndOnlineUsers.add(allOnlineUsers);
+        battleAndOnlineUsers.add(allBattles);
+
+        allMessageAndBattleAndOnlineUsers.add(battleAndOnlineUsers);
         messagePanel.setLayout(new GridLayout(1, 2));
         messagePanel.add(inputMessage);
         messagePanel.add(sendMessage);
-        panel.add(allMessageAndOnlineUsers);
+        panel.add(allMessageAndBattleAndOnlineUsers);
         panel.add(messagePanel);
         panel.setLayout(new GridLayout(2,1));
         frame.add(panel);
