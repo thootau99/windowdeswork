@@ -16,6 +16,10 @@ import javax.swing.event.MouseInputAdapter;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.text.Document;
+import javax.swing.text.BadLocationException;
+import java.io.IOException;
+
 
 public class SocketClient {
     static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
@@ -26,7 +30,7 @@ public class SocketClient {
     //建立socket
     static ClientUI ui = new ClientUI();//使用ClientUI定義好的視窗
     static String socketId = "";
-    public static void main(String[] args) {
+    public static void main(String[] args){
         ui.inputMessage.addKeyListener(new KeyAdapter(){
             public void keyPressed(KeyEvent e){
                 switch(e.getKeyCode()){
@@ -41,6 +45,23 @@ public class SocketClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateMessage();
+            }
+        });
+        ui.sendImage.addActionListener(new ActionListener() { 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ui.setEmoji();
+                /*try { 使用HTMLinsert的方式
+                    ui.display(":grinning:");//("An :grinning:awesome :smiley:string &#128516;with a few :wink:emojis!");
+                } catch (BadLocationException ex) {
+                    ex.printStackTrace();
+                }catch (IOException ix) {
+                    ix.printStackTrace();
+                }*/ 
+                
+                //socket.emit("sendMessage", messageWillSend.toString());//對當前連線的client發送一個"sendMessage"事件
+                //ui.inputMessage.setText("");//傳送完後將JTextField舊的內容清空
+                
             }
         });
         ui.setName.addActionListener(new ActionListener() { //檢查使用者使否有要更改名字

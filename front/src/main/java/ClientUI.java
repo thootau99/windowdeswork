@@ -12,6 +12,17 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import javax.swing.text.Document;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import java.io.IOException;
+import com.vdurmont.emoji.EmojiParser;
+import com.vdurmont.emoji.EmojiManager;
+import java.awt.Color;
+import javax.swing.text.html.HTML;
+import java.nio.charset.Charset;
+import java.awt.Font;
 
 public class ClientUI{
     String NAME = "Default"; //使用者預設名稱
@@ -30,19 +41,12 @@ public class ClientUI{
 
     JTextField inputMessage = new JTextField(); //使用者輸入文字
     JButton sendMessage = new JButton("Send Message"); //傳送輸入文字給聊天室
+    JButton sendImage = new JButton("Send Image"); //傳送輸入文字給聊天室
     JMenuBar menu = new JMenuBar();
     JMenu nameMenu = new JMenu("name");
     JMenuItem setName = new JMenuItem("setName"); // 開始對話窗來更改使用者名字
-    /*public ClientUI(){
-        //this.addKeyListener(new MyKeyListener()); 
-        this.addKeyListener(new KeyAdapter(){
-            public void keyPressed(KeyEvent e){
-                if(e.getKeyCode() == 13){
-                    System.out.println("你按了空白鍵");
-                }  
-            }
-        });
-    }*/
+    HTMLEditorKit htmledit = new HTMLEditorKit();
+    HTMLDocument text_html = (HTMLDocument) htmledit.createDefaultDocument();
     
     public boolean setGuessNumber (String number) {
         int A = 0;
@@ -81,12 +85,37 @@ public class ClientUI{
     }
 
 
-    public void setFromServer (JSONObject message) throws JSONException {
-        String combine = String.format("%s %s : %s \n", message.get("time"), message.get("username"), message.get("message"));
+    public void setFromServer (JSONObject messageJson) throws JSONException {
+        String combine = String.format("%s %s : %s \n", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
         allMessage += combine; //加入新字串（combine）更新現有字串（allMessage）
         messages.setText(allMessage);//更新全部訊息字串
         frame.repaint();//更新聊天視窗視窗內容
     }
+    public void setEmoji (){ //測試emoji直接輸出到jtextpane
+        //String combine = String.format("%s %s : %s \n", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
+        String str = "An :grinning:awesome :smiley:string &#128516;with a few :wink:emojis!";
+        String result = EmojiParser.parseToUnicode(str);
+        //byte[] emojiBytes = new byte[]{(byte)0xF0, (byte)0x9F, (byte)0x98, (byte)0x81};
+        //String emojiAsString = new String(emojiBytes, Charset.forName("UTF-8"));
+        allMessage += result; //加入新字串（combine）更新現有字串（allMessage）
+        messages.setText(allMessage);//更新全部訊息字串
+        frame.repaint();//更新聊天視窗視窗內容
+        //int[] surrogates = {0xD83D, 0xDC7D};
+        //String alienEmojiString = new String(surrogates, 0, surrogates.length);
+        //System.out.println(alienEmojiString);
+        System.out.println(result); 
+    }
+
+    /*public void setImage(){ 插入圖片
+        messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
+        try {
+            Document doc = messages.getDocument();
+            doc.insertString(doc.getLength(), "\n", null);
+        } catch (BadLocationException ex) {
+            ex.printStackTrace();
+        }
+
+    }*/
 
     public void setOnlineUser(JSONArray users, String socketId) {
         onlineUsersModel.clear(); // Clear the all element in the JList
@@ -121,6 +150,11 @@ public class ClientUI{
     }
 
     public void setInit() {
+        messages.setFont(new java.awt.Font("Apple Color Emoji",1,20));
+        messages.setEditorKit(htmledit);
+        messages.setContentType("text/html");
+        messages.setDocument(text_html);
+        //insertHTML(HTMLDocument doc, int offset, String html, int popDepth, int pushDepth, HTML.Tag insertTag);
         menu.add(nameMenu);
         nameMenu.add(setName);
         allMessageAndBattleAndOnlineUsers.setLayout(new GridLayout(1, 2));
@@ -132,9 +166,10 @@ public class ClientUI{
         battleAndOnlineUsers.add(allBattles);
 
         allMessageAndBattleAndOnlineUsers.add(battleAndOnlineUsers);
-        messagePanel.setLayout(new GridLayout(1, 2));
+        messagePanel.setLayout(new GridLayout(1, 3));
         messagePanel.add(inputMessage);
         messagePanel.add(sendMessage);
+        messagePanel.add(sendImage);
         panel.add(allMessageAndBattleAndOnlineUsers);
         panel.add(messagePanel);
         panel.setLayout(new GridLayout(2,1));
@@ -143,12 +178,39 @@ public class ClientUI{
         frame.setSize(400, 400);
         frame.setVisible(true);
     }
-    /*class MyKeyListener extends KeyAdapter{
-        public void keyPressed(KeyEvent e){
-            if(e.getKeyCode() == 13){
-                System.out.println("你按了空白鍵");
-            }  
-        }
-    }*/
+    //public void insertText(String str, AttributeSet attrset) {
+    public void insertMessage(String str) {
+		Document docs = messages.getDocument();// 利用getDocument()方法取得JTextPane的Document
+												// instance.0
+		str = str + "\n";
+		try {			
+			//docs.insertString(docs.getLength(), str, attrset);
+            docs.insertString(docs.getLength(), str, null);
+			
+			messages.setCaretPosition(docs.getLength()); //自動捲動到底部
+		} catch (BadLocationException ble) {
+			System.out.println("BadLocationException:" + ble);
+		}
+	}
+    public void display(String str) throws BadLocationException, IOException {//使用HTML方式顯示
+		String str_sour = EmojiParser.parseToUnicode(str); //将原串中的表情别名转换为Unicode编码
+		for (int j = 0; j < str_sour.length(); j++) { //遍历转换后的字符串
+			int codepoint = str_sour.codePointAt(j); //暂存码点
+			char[] code = Character.toChars(codepoint);  //将码点转换为Charater
+			String str1 = new String(code);   //再次转换为字符串
+			if (EmojiManager.isEmoji(EmojiParser.parseToUnicode(str1))) { //如果此码点为表情的Unicode
+				htmledit.insertHTML(text_html, messages.getDocument().getLength(),
+						"<span style=\"color:'" + "blue" + "';font-family:'Apple Color Emoji'\">" + str1 + "</span>", 0, 0,
+						HTML.Tag.SPAN); //插入html文档 字体为“Segoe UI Emoji'以正常显示表情
+                System.out.println(str1);
+				j += 1;  //由于表情一个码点是两个代码单元，故每次循环偏移两个单位
+			} else {
+				htmledit.insertHTML(text_html, messages.getDocument().getLength(),
+						"<span style=\"color:'" + "blue" + "'\">" + str1 + "</span>", 0, 0, HTML.Tag.SPAN);  //非emoji字符则正常显示，color用于颜色控制，在笔者的工程代码中，在此处可忽略
+			}
+		}
+		htmledit.insertHTML(text_html, messages.getDocument().getLength(), "<br />", 0, 0, HTML.Tag.BR); //最后加以换行
+
+	}
 
 }
