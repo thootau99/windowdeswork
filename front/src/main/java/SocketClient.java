@@ -18,12 +18,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
-import java.io.IOException;
+//import java.io.IOException;
 
 
 public class SocketClient {
-    static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
-    // static URI uri = URI.create("http://localhost:3000");
+    //static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
+    static URI uri = URI.create("http://localhost:3000");
     static IO.Options options = IO.Options.builder()
             .build();
     static Socket socket = IO.socket(uri, options);
@@ -33,10 +33,11 @@ public class SocketClient {
     public static void main(String[] args){
         ui.inputMessage.addKeyListener(new KeyAdapter(){
             public void keyPressed(KeyEvent e){
+                //ui.insertMessage("hi");
                 switch(e.getKeyCode()){
                     case KeyEvent.VK_ENTER:
-                    updateMessage();
-                    break;
+                        updateMessage();
+                        break;
                     default: break;
                 }
             }
@@ -50,7 +51,20 @@ public class SocketClient {
         ui.sendImage.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ui.setEmoji();
+                JSONObject messageWillSend = new JSONObject();  //建立一個JSON物件來傳遞資料
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//產生日期字串
+                LocalDateTime now = LocalDateTime.now();//擷取目前時間以及日期（不考慮時區）
+                try {
+                    messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
+                    //messageWillSend.put("message", ui.inputMessage.getText());//取得ClientUI使用者輸入的訊息
+                    messageWillSend.put("time", dtf.format(now));//取得輸入時間
+                    //ui.setFromServer(messageWillSend);//呼叫setFromServer更新messages（JTextPane）內容
+                    //ui.insertMessage(messageWillSend);
+                    ui.insertImage(messageWillSend);
+                } catch (JSONException jsonException) {
+                    jsonException.printStackTrace();
+                }
+                socket.emit("sendImage", messageWillSend.toString());
                 /*try { 使用HTMLinsert的方式
                     ui.display(":grinning:");//("An :grinning:awesome :smiley:string &#128516;with a few :wink:emojis!");
                 } catch (BadLocationException ex) {
@@ -117,7 +131,26 @@ public class SocketClient {
                      * message String - The content of message.
                      * */
                     JSONObject message = new JSONObject(args[0].toString());//建立一個JSON物件來傳遞資料
-                    ui.setFromServer(message);//呼叫setFromServer更新messages（JTextPane）內容
+                    ui.insertMessage(message);//呼叫setFromServer更新messages（JTextPane）內容
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        socket.on("getImage", new Emitter.Listener() { //監聽來自server的"getMessage"事件
+            @Override
+            public void call(Object... args) { // args[0]是來自其他Client端的訊息
+                try {
+                    /**
+                     * Shape of message Object
+                     * time String - The time that the message has been sent.
+                     * username String - The username that send the message.
+                     * message String - The content of message.
+                     * */
+                    System.out.print(args[0].toString());
+                    JSONObject message = new JSONObject(args[0].toString());//建立一個JSON物件來傳遞資料
+                    ui.insertImage(message);//呼叫setFromServer更新messages（JTextPane）內容
+                    //ui.setImage();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -188,7 +221,8 @@ public class SocketClient {
                 messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
                 messageWillSend.put("message", ui.inputMessage.getText());//取得ClientUI使用者輸入的訊息
                 messageWillSend.put("time", dtf.format(now));//取得輸入時間
-                ui.setFromServer(messageWillSend);//呼叫setFromServer更新messages（JTextPane）內容
+                //ui.setFromServer(messageWillSend);//呼叫setFromServer更新messages（JTextPane）內容
+                ui.insertMessage(messageWillSend);
             } catch (JSONException jsonException) {
                 jsonException.printStackTrace();
             }

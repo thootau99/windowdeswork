@@ -14,15 +14,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import java.io.IOException;
-import com.vdurmont.emoji.EmojiParser;
-import com.vdurmont.emoji.EmojiManager;
-import java.awt.Color;
-import javax.swing.text.html.HTML;
-import java.nio.charset.Charset;
-import java.awt.Font;
+//import javax.swing.text.html.HTMLDocument;
+//import javax.swing.text.html.HTMLEditorKit;
+//import java.io.IOException;
+//import com.vdurmont.emoji.EmojiParser;
+//import com.vdurmont.emoji.EmojiManager;
+//import java.awt.Color;
+//import javax.swing.text.html.HTML;
+//import java.nio.charset.Charset;
+//import java.awt.Font;
 
 public class ClientUI{
     String NAME = "Default"; //使用者預設名稱
@@ -45,8 +45,8 @@ public class ClientUI{
     JMenuBar menu = new JMenuBar();
     JMenu nameMenu = new JMenu("name");
     JMenuItem setName = new JMenuItem("setName"); // 開始對話窗來更改使用者名字
-    HTMLEditorKit htmledit = new HTMLEditorKit();
-    HTMLDocument text_html = (HTMLDocument) htmledit.createDefaultDocument();
+    //HTMLEditorKit htmledit = new HTMLEditorKit();
+    //HTMLDocument text_html = (HTMLDocument) htmledit.createDefaultDocument();
     
     public boolean setGuessNumber (String number) {
         int A = 0;
@@ -83,18 +83,31 @@ public class ClientUI{
         if (A >= 4) return true;
         else return false;
     }
-
-
+    //public void insertText(String str, AttributeSet attrset) {
+    public void insertMessage(JSONObject messageJson) throws JSONException {
+        String str = String.format("%s %s : %s", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
+        Document docs = messages.getDocument();// 利用getDocument()方法取得JTextPane的Document
+                                                // instance.0
+        //str = str + "\n";
+        try {			
+            //docs.insertString(docs.getLength(), str, attrset);
+            docs.insertString(docs.getLength(), str, null);
+            docs.insertString(docs.getLength(), "\n", null);
+            messages.setCaretPosition(docs.getLength()); //自動捲動到底部
+        } catch (BadLocationException ble) {
+            System.out.println("BadLocationException:" + ble);
+        }
+    }
     public void setFromServer (JSONObject messageJson) throws JSONException {
         String combine = String.format("%s %s : %s \n", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
         allMessage += combine; //加入新字串（combine）更新現有字串（allMessage）
         messages.setText(allMessage);//更新全部訊息字串
         frame.repaint();//更新聊天視窗視窗內容
     }
-    public void setEmoji (){ //測試emoji直接輸出到jtextpane
+    /*public void setEmoji (){ //測試emoji直接輸出到jtextpane
         //String combine = String.format("%s %s : %s \n", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
-        String str = "An :grinning:awesome :smiley:string &#128516;with a few :wink:emojis!";
-        String result = EmojiParser.parseToUnicode(str);
+        //String str = "An :grinning:awesome :smiley:string &#128516;with a few :wink:emojis!";
+        String result = "\uD83D\uDC7D";//EmojiParser.parseToUnicode(str);
         //byte[] emojiBytes = new byte[]{(byte)0xF0, (byte)0x9F, (byte)0x98, (byte)0x81};
         //String emojiAsString = new String(emojiBytes, Charset.forName("UTF-8"));
         allMessage += result; //加入新字串（combine）更新現有字串（allMessage）
@@ -103,14 +116,33 @@ public class ClientUI{
         //int[] surrogates = {0xD83D, 0xDC7D};
         //String alienEmojiString = new String(surrogates, 0, surrogates.length);
         //System.out.println(alienEmojiString);
-        System.out.println(result); 
-    }
+        System.out.println("\uD83D\uDC7D"); 
+    }*/
 
-    /*public void setImage(){ 插入圖片
-        messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
+    public void insertImage(JSONObject messageJson) throws JSONException { //插入圖片
+        String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
+        //messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
+        Document doc = messages.getDocument();
+        try {			
+            //docs.insertString(docs.getLength(), str, attrset);
+            doc.insertString(doc.getLength(), str, null);
+            messages.setCaretPosition(doc.getLength());
+            messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
+            doc.insertString(doc.getLength(), "\n", null);
+            messages.setCaretPosition(doc.getLength());
+        } catch (BadLocationException ble) {
+            System.out.println("BadLocationException:" + ble);
+        }
+        //setImage();
+
+    }
+    /*public void setImage(){//(JSONObject messageJson) throws JSONException { //插入圖片
+        //String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
+        //messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
         try {
             Document doc = messages.getDocument();
-            doc.insertString(doc.getLength(), "\n", null);
+            //doc.insertString(doc.getLength(), str, null);
+            
         } catch (BadLocationException ex) {
             ex.printStackTrace();
         }
@@ -150,10 +182,10 @@ public class ClientUI{
     }
 
     public void setInit() {
-        messages.setFont(new java.awt.Font("Apple Color Emoji",1,20));
-        messages.setEditorKit(htmledit);
-        messages.setContentType("text/html");
-        messages.setDocument(text_html);
+        //messages.setFont(new java.awt.Font("Arial Unicode MS",1,20));
+        //messages.setEditorKit(htmledit);
+        //messages.setContentType("text/html");
+        //messages.setDocument(text_html);
         //insertHTML(HTMLDocument doc, int offset, String html, int popDepth, int pushDepth, HTML.Tag insertTag);
         menu.add(nameMenu);
         nameMenu.add(setName);
@@ -178,21 +210,19 @@ public class ClientUI{
         frame.setSize(400, 400);
         frame.setVisible(true);
     }
-    //public void insertText(String str, AttributeSet attrset) {
-    public void insertMessage(String str) {
+    /*public void insert(String str, AttributeSet attrset) {
 		Document docs = messages.getDocument();// 利用getDocument()方法取得JTextPane的Document
 												// instance.0
 		str = str + "\n";
 		try {			
-			//docs.insertString(docs.getLength(), str, attrset);
-            docs.insertString(docs.getLength(), str, null);
+			docs.insertString(docs.getLength(), str, attrset);
 			
 			messages.setCaretPosition(docs.getLength()); //自動捲動到底部
 		} catch (BadLocationException ble) {
 			System.out.println("BadLocationException:" + ble);
 		}
-	}
-    public void display(String str) throws BadLocationException, IOException {//使用HTML方式顯示
+	}*/
+    /*public void display(String str) throws BadLocationException, IOException {//使用HTML方式顯示
 		String str_sour = EmojiParser.parseToUnicode(str); //将原串中的表情别名转换为Unicode编码
 		for (int j = 0; j < str_sour.length(); j++) { //遍历转换后的字符串
 			int codepoint = str_sour.codePointAt(j); //暂存码点
@@ -211,6 +241,6 @@ public class ClientUI{
 		}
 		htmledit.insertHTML(text_html, messages.getDocument().getLength(), "<br />", 0, 0, HTML.Tag.BR); //最后加以换行
 
-	}
+	}*/
 
 }
