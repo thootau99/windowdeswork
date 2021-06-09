@@ -120,14 +120,22 @@ public class ClientUI{
     }*/
 
     public void insertImage(JSONObject messageJson) throws JSONException { //插入圖片
+        ClassLoader classLoader = getClass().getClassLoader();
+        ImageIcon pic1=new ImageIcon(classLoader.getResource("images/no.jpeg").getFile());
+        ImageIcon pic2=new ImageIcon(classLoader.getResource("images/anrgy.jpeg").getFile());
+        ImageIcon pic3=new ImageIcon(classLoader.getResource("images/happy.jpeg").getFile());
+        ImageIcon pic4=new ImageIcon(classLoader.getResource("images/sad.jpeg").getFile());
+        ImageIcon pic5=new ImageIcon(classLoader.getResource("images/sorry.jpeg").getFile());
+        ImageIcon pic6=new ImageIcon(classLoader.getResource("images/thank.jpeg").getFile());
         String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
-        //messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
         Document doc = messages.getDocument();
+        Object[] picOptions = { pic1, pic2, pic3, pic4, pic5,pic6 };
+        int id = Integer.parseInt(messageJson.get("pic").toString());
+        ImageIcon ImageIconChoose =  (ImageIcon) (picOptions[id]);
         try {			
-            //docs.insertString(docs.getLength(), str, attrset);
             doc.insertString(doc.getLength(), str, null);
             messages.setCaretPosition(doc.getLength());
-            messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
+            messages.insertIcon(ImageIconChoose);
             doc.insertString(doc.getLength(), "\n", null);
             messages.setCaretPosition(doc.getLength());
         } catch (BadLocationException ble) {

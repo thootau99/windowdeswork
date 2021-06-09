@@ -5,7 +5,6 @@ import {Server, Socket} from 'socket.io'
 const IP = "0.0.0.0"
 const httpServer = createServer();
 const io = new Server(httpServer, {});
-
 let onlineUser = []
 let battles = []
 function getSelf(id, onlineUser) {
