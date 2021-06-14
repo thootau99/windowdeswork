@@ -14,15 +14,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
-//import javax.swing.text.html.HTMLDocument;
-//import javax.swing.text.html.HTMLEditorKit;
-//import java.io.IOException;
-//import com.vdurmont.emoji.EmojiParser;
-//import com.vdurmont.emoji.EmojiManager;
-//import java.awt.Color;
-//import javax.swing.text.html.HTML;
-//import java.nio.charset.Charset;
-//import java.awt.Font;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import java.io.File;
+import java.io.IOException;
 
 public class ClientUI{
     String NAME = "Default"; //使用者預設名稱
@@ -30,6 +31,7 @@ public class ClientUI{
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     JPanel messagePanel = new JPanel(); // Panel -> inputMessage + sendMessage
+    JPanel buttonPanel = new JPanel();
     JPanel battleAndOnlineUsers = new JPanel();
     JPanel allMessageAndBattleAndOnlineUsers = new JPanel(); // Panel -> message + allOnlineUsers
     JTextPane messages = new JTextPane(); //聊天室訊息
@@ -42,12 +44,18 @@ public class ClientUI{
     JTextField inputMessage = new JTextField(); //使用者輸入文字
     JButton sendMessage = new JButton("Send Message"); //傳送輸入文字給聊天室
     JButton sendImage = new JButton("Send Image"); //傳送輸入文字給聊天室
+    JButton playSong = new JButton("Play Song");
     JMenuBar menu = new JMenuBar();
     JMenu nameMenu = new JMenu("name");
     JMenuItem setName = new JMenuItem("setName"); // 開始對話窗來更改使用者名字
-    //HTMLEditorKit htmledit = new HTMLEditorKit();
-    //HTMLDocument text_html = (HTMLDocument) htmledit.createDefaultDocument();
-    
+    JMenu musicMenu = new JMenu("music");
+    JMenuItem muPlay = new JMenuItem("play");
+    JMenuItem muStop = new JMenuItem("stop");
+    JMenuItem muRestart = new JMenuItem("restart");    
+    Clip myClip;
+	AudioInputStream input;
+    int nerverPlay = 0;
+
     public boolean setGuessNumber (String number) {
         int A = 0;
         int B = 0;
@@ -83,8 +91,10 @@ public class ClientUI{
         if (A >= 4) return true;
         else return false;
     }
-    //public void insertText(String str, AttributeSet attrset) {
     public void insertMessage(JSONObject messageJson) throws JSONException {
+        if(NAME != (String)messageJson.get("username")){
+            Toolkit.getDefaultToolkit().beep();
+        }
         String str = String.format("%s %s : %s", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
         Document docs = messages.getDocument();// 利用getDocument()方法取得JTextPane的Document
                                                 // instance.0
@@ -99,27 +109,17 @@ public class ClientUI{
         }
     }
     public void setFromServer (JSONObject messageJson) throws JSONException {
+        //String name = messageJson.get("username");
         String combine = String.format("%s %s : %s \n", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
         allMessage += combine; //加入新字串（combine）更新現有字串（allMessage）
         messages.setText(allMessage);//更新全部訊息字串
         frame.repaint();//更新聊天視窗視窗內容
     }
-    /*public void setEmoji (){ //測試emoji直接輸出到jtextpane
-        //String combine = String.format("%s %s : %s \n", messageJson.get("time"), messageJson.get("username"), messageJson.get("message"));
-        //String str = "An :grinning:awesome :smiley:string &#128516;with a few :wink:emojis!";
-        String result = "\uD83D\uDC7D";//EmojiParser.parseToUnicode(str);
-        //byte[] emojiBytes = new byte[]{(byte)0xF0, (byte)0x9F, (byte)0x98, (byte)0x81};
-        //String emojiAsString = new String(emojiBytes, Charset.forName("UTF-8"));
-        allMessage += result; //加入新字串（combine）更新現有字串（allMessage）
-        messages.setText(allMessage);//更新全部訊息字串
-        frame.repaint();//更新聊天視窗視窗內容
-        //int[] surrogates = {0xD83D, 0xDC7D};
-        //String alienEmojiString = new String(surrogates, 0, surrogates.length);
-        //System.out.println(alienEmojiString);
-        System.out.println("\uD83D\uDC7D"); 
-    }*/
 
     public void insertImage(JSONObject messageJson) throws JSONException { //插入圖片
+        if(NAME != (String)messageJson.get("username")){
+            Toolkit.getDefaultToolkit().beep();
+        }
         ClassLoader classLoader = getClass().getClassLoader();
         ImageIcon pic1=new ImageIcon(classLoader.getResource("images/no.jpeg").getFile());
         ImageIcon pic2=new ImageIcon(classLoader.getResource("images/anrgy.jpeg").getFile());
@@ -141,21 +141,47 @@ public class ClientUI{
         } catch (BadLocationException ble) {
             System.out.println("BadLocationException:" + ble);
         }
-        //setImage();
 
     }
-    /*public void setImage(){//(JSONObject messageJson) throws JSONException { //插入圖片
-        //String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
-        //messages.insertIcon(new ImageIcon("/Users/tasiyusiang/Downloads/windowdeswork/front/src/main/java/Shit.png"));
-        try {
-            Document doc = messages.getDocument();
-            //doc.insertString(doc.getLength(), str, null);
-            
-        } catch (BadLocationException ex) {
-            ex.printStackTrace();
-        }
 
-    }*/
+    public void playMusic(JSONObject messageJson) throws JSONException {
+        if(nerverPlay == 0){
+            nerverPlay = 1;
+        }else if(nerverPlay == 1){
+            myClip.stop();
+        }
+        Object[] songNames = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee", "TokyoHot"};
+        int id = Integer.parseInt(messageJson.get("music").toString());
+        String str = String.format("%s %s set background music to %s", messageJson.get("time"), messageJson.get("username"), songNames[id]);
+        Document docs = messages.getDocument();
+        ClassLoader classLoader = getClass().getClassLoader();
+        File music1 = new File(classLoader.getResource("audio/Astronomia.wav").getFile());
+        File music2 = new File(classLoader.getResource("audio/NyanCat.wav").getFile());
+        File music3 = new File(classLoader.getResource("audio/What'sGoingOn.wav").getFile());
+        File music4 = new File(classLoader.getResource("audio/Yeee.wav").getFile());
+        File music5 = new File(classLoader.getResource("audio/TokyoHot.wav").getFile());
+        Object[] possibleValues = { music1, music2, music3, music4, music5};
+        try {			
+            docs.insertString(docs.getLength(), str, null);
+            docs.insertString(docs.getLength(), "\n", null);
+            messages.setCaretPosition(docs.getLength()); //自動捲動到底部
+        } catch (BadLocationException ble) {
+            System.out.println("BadLocationException:" + ble);
+        }
+        try {
+            input = AudioSystem.getAudioInputStream(
+                (File)(possibleValues[id]));
+            DataLine.Info info
+                = new DataLine.Info(Clip.class, input.getFormat());
+            if (AudioSystem.isLineSupported(info))
+                myClip = (Clip) AudioSystem.getLine(info);
+                myClip.open(input);
+        }
+        catch (UnsupportedAudioFileException ee1) {}
+        catch (IOException ee2) {}
+        catch (LineUnavailableException ee3) {};
+
+    }
 
     public void setOnlineUser(JSONArray users, String socketId) {
         onlineUsersModel.clear(); // Clear the all element in the JList
@@ -190,13 +216,12 @@ public class ClientUI{
     }
 
     public void setInit() {
-        //messages.setFont(new java.awt.Font("Arial Unicode MS",1,20));
-        //messages.setEditorKit(htmledit);
-        //messages.setContentType("text/html");
-        //messages.setDocument(text_html);
-        //insertHTML(HTMLDocument doc, int offset, String html, int popDepth, int pushDepth, HTML.Tag insertTag);
         menu.add(nameMenu);
         nameMenu.add(setName);
+        menu.add(musicMenu);
+        musicMenu.add(muPlay);
+        musicMenu.add(muStop);
+        musicMenu.add(muRestart);
         allMessageAndBattleAndOnlineUsers.setLayout(new GridLayout(1, 2));
         allMessageAndBattleAndOnlineUsers.add(new JScrollPane(messages,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
@@ -206,10 +231,13 @@ public class ClientUI{
         battleAndOnlineUsers.add(allBattles);
 
         allMessageAndBattleAndOnlineUsers.add(battleAndOnlineUsers);
-        messagePanel.setLayout(new GridLayout(1, 3));
+        messagePanel.setLayout(new GridLayout(1, 2));
         messagePanel.add(inputMessage);
-        messagePanel.add(sendMessage);
-        messagePanel.add(sendImage);
+        buttonPanel.setLayout(new GridLayout(3, 1));
+        buttonPanel.add(sendMessage);
+        buttonPanel.add(sendImage);
+        buttonPanel.add(playSong);
+        messagePanel.add(buttonPanel);
         panel.add(allMessageAndBattleAndOnlineUsers);
         panel.add(messagePanel);
         panel.setLayout(new GridLayout(2,1));
@@ -218,37 +246,4 @@ public class ClientUI{
         frame.setSize(400, 400);
         frame.setVisible(true);
     }
-    /*public void insert(String str, AttributeSet attrset) {
-		Document docs = messages.getDocument();// 利用getDocument()方法取得JTextPane的Document
-												// instance.0
-		str = str + "\n";
-		try {			
-			docs.insertString(docs.getLength(), str, attrset);
-			
-			messages.setCaretPosition(docs.getLength()); //自動捲動到底部
-		} catch (BadLocationException ble) {
-			System.out.println("BadLocationException:" + ble);
-		}
-	}*/
-    /*public void display(String str) throws BadLocationException, IOException {//使用HTML方式顯示
-		String str_sour = EmojiParser.parseToUnicode(str); //将原串中的表情别名转换为Unicode编码
-		for (int j = 0; j < str_sour.length(); j++) { //遍历转换后的字符串
-			int codepoint = str_sour.codePointAt(j); //暂存码点
-			char[] code = Character.toChars(codepoint);  //将码点转换为Charater
-			String str1 = new String(code);   //再次转换为字符串
-			if (EmojiManager.isEmoji(EmojiParser.parseToUnicode(str1))) { //如果此码点为表情的Unicode
-				htmledit.insertHTML(text_html, messages.getDocument().getLength(),
-						"<span style=\"color:'" + "blue" + "';font-family:'Apple Color Emoji'\">" + str1 + "</span>", 0, 0,
-						HTML.Tag.SPAN); //插入html文档 字体为“Segoe UI Emoji'以正常显示表情
-                System.out.println(str1);
-				j += 1;  //由于表情一个码点是两个代码单元，故每次循环偏移两个单位
-			} else {
-				htmledit.insertHTML(text_html, messages.getDocument().getLength(),
-						"<span style=\"color:'" + "blue" + "'\">" + str1 + "</span>", 0, 0, HTML.Tag.SPAN);  //非emoji字符则正常显示，color用于颜色控制，在笔者的工程代码中，在此处可忽略
-			}
-		}
-		htmledit.insertHTML(text_html, messages.getDocument().getLength(), "<br />", 0, 0, HTML.Tag.BR); //最后加以换行
-
-	}*/
-
 }

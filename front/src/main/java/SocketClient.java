@@ -23,7 +23,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.ImageIcon;
 //import java.io.IOException;
 
-
 public class SocketClient {
     //static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
     static URI uri = URI.create("http://localhost:3000");
@@ -33,6 +32,7 @@ public class SocketClient {
     //建立socket
     static ClientUI ui = new ClientUI();//使用ClientUI定義好的視窗
     static String socketId = "";
+    static int num = 0;
     public static void main(String[] args){
         ui.inputMessage.addKeyListener(new KeyAdapter(){
             public void keyPressed(KeyEvent e){
@@ -49,6 +49,44 @@ public class SocketClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateMessage();
+            }
+        });
+        ui.playSong.addActionListener(new ActionListener() { 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JSONObject messageWillSend = new JSONObject();  //建立一個JSON物件來傳遞資料
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//產生日期字串
+                LocalDateTime now = LocalDateTime.now();//擷取目前時間以及日期（不考慮時區）
+                Object[] possibleValues = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee", "TokyoHot"};
+                Object selectedValue = JOptionPane.showInputDialog(
+                        null,
+                        "請選擇想要播放的音樂",
+                        "設置背景音樂",
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        possibleValues,
+                        possibleValues[0]);
+                //System.out.println(selectedValue);
+                if(selectedValue == "Astronomia"){
+                    num = 0;
+                }else if(selectedValue == "NyanCat"){
+                    num = 1;
+                }else if(selectedValue == "What'sGoingOn"){
+                    num = 2;
+                }else if(selectedValue == "Yeee"){
+                    num = 3;
+                }else if(selectedValue == "TokyoHot"){
+                    num = 4;
+                }
+                try {
+                    messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
+                    messageWillSend.put("time", dtf.format(now));//取得輸入時間
+                    messageWillSend.put("music", num);
+                    ui.playMusic(messageWillSend);
+                } catch (JSONException jsonException) {
+                    jsonException.printStackTrace();
+                }
+                socket.emit("setMusic", messageWillSend.toString(),selectedValue);
             }
         });
         ui.sendImage.addActionListener(new ActionListener() { 
@@ -103,6 +141,29 @@ public class SocketClient {
             }
         });
 
+        ui.muPlay.addActionListener(new ActionListener() { //檢查使用者使否有要更改名字
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ui.myClip.start();
+            }
+        });
+
+        ui.muStop.addActionListener(new ActionListener() { //檢查使用者使否有要更改名字
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ui.myClip.stop();
+            }
+        });
+
+        ui.muRestart.addActionListener(new ActionListener() { //檢查使用者使否有要更改名字
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ui.myClip.stop();
+				ui.myClip.setFramePosition(0);
+                ui.myClip.start();
+            }
+        });
+
         ui.allOnlineUsers.addMouseListener(new MouseInputAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -139,6 +200,24 @@ public class SocketClient {
                      * */
                     JSONObject message = new JSONObject(args[0].toString());//建立一個JSON物件來傳遞資料
                     ui.insertMessage(message);//呼叫setFromServer更新messages（JTextPane）內容
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        socket.on("changeMusic", new Emitter.Listener() { //監聽來自server的"getMessage"事件
+            @Override
+            public void call(Object... args) { // args[0]是來自其他Client端的訊息
+                try {
+                    /**
+                     * Shape of message Object
+                     * time String - The time that the message has been sent.
+                     * username String - The username that send the message.
+                     * message String - The content of message.
+                     * */
+                    JSONObject message = new JSONObject(args[0].toString());//建立一個JSON物件來傳遞資料
+                    ui.playMusic(message);//呼叫setFromServer更新messages（JTextPane）內容
+                    //ui.myClip.stop();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

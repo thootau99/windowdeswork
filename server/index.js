@@ -35,6 +35,11 @@ io.on("connection", (socket) => {//建立連線
     socket.broadcast.emit("getImage", arg) //廣播發送給所有client"getMessage"
   })
 
+  socket.on("setMusic", (arg) => { //監聽來自client的"sendMessage"事件
+    console.log("someome set Music", arg) //顯示有人重送訊息在terminal上
+    socket.broadcast.emit("changeMusic", arg) //廣播發送給所有client"getMessage"
+  })
+
   socket.on("changeName", (arg) => {
     onlineUser = onlineUser.map(user => user.id === socket.id ? {...user, name: arg} : user) // update username
     console.log(`${socket.id} has change name to ${arg}`)
