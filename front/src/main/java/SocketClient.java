@@ -57,7 +57,7 @@ public class SocketClient {
                 JSONObject messageWillSend = new JSONObject();  //建立一個JSON物件來傳遞資料
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//產生日期字串
                 LocalDateTime now = LocalDateTime.now();//擷取目前時間以及日期（不考慮時區）
-                Object[] possibleValues = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee", "TokyoHot"};
+                Object[] possibleValues = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee"};
                 Object selectedValue = JOptionPane.showInputDialog(
                         null,
                         "請選擇想要播放的音樂",
@@ -75,8 +75,6 @@ public class SocketClient {
                     num = 2;
                 }else if(selectedValue == "Yeee"){
                     num = 3;
-                }else if(selectedValue == "TokyoHot"){
-                    num = 4;
                 }
                 try {
                     messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
