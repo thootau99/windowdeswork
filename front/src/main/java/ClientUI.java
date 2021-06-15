@@ -127,6 +127,17 @@ public class ClientUI{
         ImageIcon pic4=new ImageIcon(classLoader.getResource("images/sad.jpeg").getFile());
         ImageIcon pic5=new ImageIcon(classLoader.getResource("images/sorry.jpeg").getFile());
         ImageIcon pic6=new ImageIcon(classLoader.getResource("images/thank.jpeg").getFile());
+	ImageIcon pic7=new ImageIcon(classLoader.getResource("images/cat.jpeg").getFile());
+	ImageIcon pic8=new ImageIcon(classLoader.getResource("images/duck.jpeg").getFile());
+	ImageIcon pic9=new ImageIcon(classLoader.getResource("images/fat.jpeg").getFile());
+	ImageIcon pic10=new ImageIcon(classLoader.getResource("images/isthatit.jpeg").getFile());
+	ImageIcon pic11=new ImageIcon(classLoader.getResource("images/lag.jpeg").getFile());
+	ImageIcon pic12=new ImageIcon(classLoader.getResource("images/new.jpeg").getFile());
+	ImageIcon pic13=new ImageIcon(classLoader.getResource("images/saint.jpeg").getFile());
+	ImageIcon pic14=new ImageIcon(classLoader.getResource("images/sb.jpeg").getFile());
+	ImageIcon pic15=new ImageIcon(classLoader.getResource("images/tired.jpeg").getFile());
+	ImageIcon pic16=new ImageIcon(classLoader.getResource("images/wah.jpeg").getFile());
+	ImageIcon pic17=new ImageIcon(classLoader.getResource("images/woman.jpeg").getFile());
         String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
         Document doc = messages.getDocument();
         Object[] picOptions = { pic1, pic2, pic3, pic4, pic5,pic6 };
