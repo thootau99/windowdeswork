@@ -174,7 +174,7 @@ public class ClientUI{
     public void playMusic(JSONObject messageJson) throws JSONException {
         if(neverPlay == 0){
             neverPlay = 1;
-        }else if(nerverPlay == 1){
+        }else if(neverPlay == 1){
             myClip.stop();
         }
         Object[] songNames = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee"};
