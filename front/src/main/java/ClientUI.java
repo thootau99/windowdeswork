@@ -138,6 +138,7 @@ public class ClientUI{
 	ImageIcon pic15=new ImageIcon(classLoader.getResource("images/tired.jpeg").getFile());
 	ImageIcon pic16=new ImageIcon(classLoader.getResource("images/wah.jpeg").getFile());
 	ImageIcon pic17=new ImageIcon(classLoader.getResource("images/woman.jpeg").getFile());
+        ImageIcon pic18=new ImageIcon(classLoader.getResource("images/midwind.gif").getFile());   
         String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
         Document doc = messages.getDocument();
         Object[] picOptions = { pic1, pic2, pic3, pic4, pic5,pic6 };
