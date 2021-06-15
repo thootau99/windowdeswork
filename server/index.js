@@ -46,35 +46,43 @@ io.on("connection", (socket) => {//建立連線
     updateUser() // update the change result to all clients.
   })
 
-  socket.on("guessNumber", (arg) => {
-    const argToJson = JSON.parse(arg);
-    const argWillSend = {battleid:`${socket.id}${argToJson.id}`, p1:socket.id, p2:argToJson.id, number: argToJson.number, finished: false, winner: '', players: [{team1: [socket.id]}, {team2: [argToJson.id]}]}
-    socket.broadcast.emit("guessNumber", JSON.stringify(argWillSend));
-    battles = [...battles, argWillSend]
+  socket.on("guessNumber", (arg) => { // 發起猜數字挑戰
+    const argToJson = JSON.parse(arg); // parse arg : string => arg : jsonObject
+    const argWillSend = {
+      battleid: `${socket.id}${argToJson.id}`,  // id of the battle room
+      p1: socket.id, // player1's id
+      p2: argToJson.id, // player2's id
+      number: argToJson.number, // number to guess 
+      finished: false, // 是否結束
+      winner: '',
+      players: [{ team1: [socket.id] }, { team2: [argToJson.id] }] // players 分兩組
+    }
+    socket.broadcast.emit("guessNumber", JSON.stringify(argWillSend)); // broadcast 給 user, 更新房間清單
+    battles = [...battles, argWillSend] // 在 server 上存 battle
     console.log(argWillSend)
     console.log(`${argToJson.id} is guessing ${argToJson.number}`)
   })
 
-  socket.on("finishBattle", (arg) => {
-    const result = JSON.parse(arg)
-    result.battle = JSON.parse(result.battle)
-    battles = battles.map(battle => {
-      if (battle.battleid === result.battle.battleid) {
+  socket.on("finishBattle", (arg) => { // 戰鬥結束
+    const result = JSON.parse(arg) // parse result : string => result : jsonObject
+    result.battle = JSON.parse(result.battle) // parse battle : string => battle : jsonObject
+    battles = battles.map(battle => { // change the status of battle which saved in server
+      if (battle.battleid === result.battle.battleid) { 
         return {
-          ...battle,
-          winner: result.result,
-          finished: true
+          ...battle, // expand battle
+          winner: result.result, //change winner in battle
+          finished: true // change finished in battle
         }
-      } else return battle
+      } else return battle // 若 id 不同就跳過
     })
     console.log("battle finished...", battles, result)
-    socket.broadcast.emit("setBattleList", JSON.stringify(battles))
+    socket.broadcast.emit("setBattleList", JSON.stringify(battles)) // 更新給其他 users 知道戰鬥結束
     socket.emit("setBattleList", JSON.stringify(battles))
   })
 
   socket.on("getBattleList", () => {
     console.log("All user updating battlelist...")
-    socket.broadcast.emit("setBattleList", JSON.stringify(battles))
+    socket.broadcast.emit("setBattleList", JSON.stringify(battles)) // 更新 battle room 清單
     socket.emit("setBattleList", JSON.stringify(battles))
   })
 
