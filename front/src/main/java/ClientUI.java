@@ -55,7 +55,7 @@ public class ClientUI{
     JMenuItem muRestart = new JMenuItem("restart");    
     Clip myClip;
 	AudioInputStream input;
-    int nerverPlay = 0;
+    int neverPlay = 0;
 
     public static File[] getResourceFolderFiles (String folder) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -172,8 +172,8 @@ public class ClientUI{
     }
 
     public void playMusic(JSONObject messageJson) throws JSONException {
-        if(nerverPlay == 0){
-            nerverPlay = 1;
+        if(neverPlay == 0){
+            neverPlay = 1;
         }else if(nerverPlay == 1){
             myClip.stop();
         }
