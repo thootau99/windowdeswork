@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,6 +56,34 @@ public class ClientUI{
     Clip myClip;
 	AudioInputStream input;
     int nerverPlay = 0;
+
+    public static File[] getResourceFolderFiles (String folder) {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        System.out.println(folder);
+        URL url = loader.getResource(folder);
+        String path = url.getPath();
+        return new File(path).listFiles();
+    }
+
+    public ImageIcon scaleImage(ImageIcon icon, int w, int h)
+    {
+        int nw = icon.getIconWidth();
+        int nh = icon.getIconHeight();
+
+        if(icon.getIconWidth() > w)
+        {
+            nw = w;
+            nh = (nw * icon.getIconHeight()) / icon.getIconWidth();
+        }
+
+        if(nh > h)
+        {
+            nh = h;
+            nw = (icon.getIconWidth() * nh) / icon.getIconHeight();
+        }
+
+        return new ImageIcon(icon.getImage().getScaledInstance(nw, nh, Image.SCALE_DEFAULT));
+    }
 
     public boolean setGuessNumber (String number) {
         int A = 0;
@@ -120,18 +149,16 @@ public class ClientUI{
         if(NAME != (String)messageJson.get("username")){
             Toolkit.getDefaultToolkit().beep();
         }
-        ClassLoader classLoader = getClass().getClassLoader();
-        ImageIcon pic1=new ImageIcon(classLoader.getResource("images/no.jpeg").getFile());
-        ImageIcon pic2=new ImageIcon(classLoader.getResource("images/anrgy.jpeg").getFile());
-        ImageIcon pic3=new ImageIcon(classLoader.getResource("images/happy.jpeg").getFile());
-        ImageIcon pic4=new ImageIcon(classLoader.getResource("images/sad.jpeg").getFile());
-        ImageIcon pic5=new ImageIcon(classLoader.getResource("images/sorry.jpeg").getFile());
-        ImageIcon pic6=new ImageIcon(classLoader.getResource("images/thank.jpeg").getFile());
+        ArrayList<ImageIcon> pics = new ArrayList<ImageIcon>();
+        for (File f : getResourceFolderFiles("images")) {
+            ImageIcon icon = new ImageIcon(f.toString());
+            icon = scaleImage(icon, 80, 80);
+            pics.add(icon);
+        }
         String str = String.format("%s %s : ", messageJson.get("time"), messageJson.get("username"));
         Document doc = messages.getDocument();
-        Object[] picOptions = { pic1, pic2, pic3, pic4, pic5,pic6 };
         int id = Integer.parseInt(messageJson.get("pic").toString());
-        ImageIcon ImageIconChoose =  (ImageIcon) (picOptions[id]);
+        ImageIcon ImageIconChoose =  (ImageIcon) (pics.get(id));
         try {			
             doc.insertString(doc.getLength(), str, null);
             messages.setCaretPosition(doc.getLength());

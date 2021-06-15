@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
 import javax.swing.ImageIcon;
@@ -93,22 +95,20 @@ public class SocketClient {
                 JSONObject messageWillSend = new JSONObject();  //建立一個JSON物件來傳遞資料
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");//產生日期字串
                 LocalDateTime now = LocalDateTime.now();//擷取目前時間以及日期（不考慮時區）
-                ClassLoader classLoader = getClass().getClassLoader();
-                ImageIcon pic1=new ImageIcon(classLoader.getResource("images/no.jpeg").getFile());
-                ImageIcon pic2=new ImageIcon(classLoader.getResource("images/anrgy.jpeg").getFile());
-                ImageIcon pic3=new ImageIcon(classLoader.getResource("images/happy.jpeg").getFile());
-                ImageIcon pic4=new ImageIcon(classLoader.getResource("images/sad.jpeg").getFile());
-                ImageIcon pic5=new ImageIcon(classLoader.getResource("images/sorry.jpeg").getFile());
-                ImageIcon pic6=new ImageIcon(classLoader.getResource("images/thank.jpeg").getFile());
-                Object[] picOptions = { pic1, pic2, pic3, pic4, pic5,pic6 };
+                ArrayList<ImageIcon> pics = new ArrayList<ImageIcon>();
+                for (File f : ui.getResourceFolderFiles("images")) {
+                    ImageIcon icon = new ImageIcon(f.toString());
+                    icon = ui.scaleImage(icon, 80, 80);
+                    pics.add(icon);
+                }
                 int selectValue=JOptionPane.showOptionDialog(null,
                                                 "請選擇想要傳送的貼圖",
                                                 "傳送圖片",
                                                 JOptionPane.DEFAULT_OPTION,
                                                 JOptionPane.PLAIN_MESSAGE,
                                                 null,
-                                                picOptions,
-                                                picOptions[0]);
+                                                pics.toArray(),
+                                                pics.toArray()[0]);
                 //ImageIcon ImageIconChoose =  (ImageIcon) (picOptions[selectValue]);
                 try {
                     messageWillSend.put("username", ui.NAME);//取得輸入的使用者名稱
