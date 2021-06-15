@@ -186,7 +186,11 @@ public class ClientUI{
         File music2 = new File(classLoader.getResource("audio/NyanCat.wav").getFile());
         File music3 = new File(classLoader.getResource("audio/What'sGoingOn.wav").getFile());
         File music4 = new File(classLoader.getResource("audio/Yeee.wav").getFile());
-        Object[] possibleValues = { music1, music2, music3, music4};
+	File music5 = new File(classLoader.getResource("audio/I CAN'T STOP ME GUO DONG.wav").getFile());
+	File music6 = new File(classLoader.getResource("audio/Cant Help Falling in Love Gawr Gura.wav").getFile());
+	File music7 = new File(classLoader.getResource("audio/Hajimete no Chuu Gawr Gura.wav").getFile());
+	File music8 = new File(classLoader.getResource("audio/VALLIS-NERIAAAAA.wav").getFile());
+        Object[] possibleValues = { music1, music2, music3, music4, music5, music6, music7, music8};
         try {			
             docs.insertString(docs.getLength(), str, null);
             docs.insertString(docs.getLength(), "\n", null);
