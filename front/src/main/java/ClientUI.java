@@ -177,7 +177,7 @@ public class ClientUI{
         }else if(neverPlay == 1){
             myClip.stop();
         }
-        Object[] songNames = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee"};
+        Object[] songNames = { "Astronomia", "NyanCat", "What'sGoingOn", "Yeee", "ICAN'TSTOPMEGUODONG", "CantHelpFallinginLoveGawrGura", "HajimetenoChuuGawrGura", "VALLISNERIAAAAA"};
         int id = Integer.parseInt(messageJson.get("music").toString());
         String str = String.format("%s %s set background music to %s", messageJson.get("time"), messageJson.get("username"), songNames[id]);
         Document docs = messages.getDocument();
@@ -186,10 +186,10 @@ public class ClientUI{
         File music2 = new File(classLoader.getResource("audio/NyanCat.wav").getFile());
         File music3 = new File(classLoader.getResource("audio/What'sGoingOn.wav").getFile());
         File music4 = new File(classLoader.getResource("audio/Yeee.wav").getFile());
-	File music5 = new File(classLoader.getResource("audio/I CAN'T STOP ME GUO DONG.wav").getFile());
-	File music6 = new File(classLoader.getResource("audio/Cant Help Falling in Love Gawr Gura.wav").getFile());
-	File music7 = new File(classLoader.getResource("audio/Hajimete no Chuu Gawr Gura.wav").getFile());
-	File music8 = new File(classLoader.getResource("audio/VALLIS-NERIAAAAA.wav").getFile());
+	File music5 = new File(classLoader.getResource("audio/ICAN'TSTOPMEGUODONG.wav").getFile());
+	File music6 = new File(classLoader.getResource("audio/CantHelpFallinginLoveGawrGura.wav").getFile());
+	File music7 = new File(classLoader.getResource("audio/HajimetenoChuuGawrGura.wav").getFile());
+	File music8 = new File(classLoader.getResource("audio/VALLISNERIAAAAA.wav").getFile());
         Object[] possibleValues = { music1, music2, music3, music4, music5, music6, music7, music8};
         try {			
             docs.insertString(docs.getLength(), str, null);
