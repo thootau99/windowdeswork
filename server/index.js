@@ -77,7 +77,6 @@ io.on("connection", (socket) => {//建立連線
     })
     console.log("battle finished...", battles, result)
     socket.broadcast.emit("setBattleList", JSON.stringify(battles)) // 更新給其他 users 知道戰鬥結束
-    socket.emit("setBattleList", JSON.stringify(battles))
   })
 
   socket.on("getBattleList", () => {

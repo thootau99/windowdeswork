@@ -26,8 +26,8 @@ import javax.swing.ImageIcon;
 //import java.io.IOException;
 
 public class SocketClient {
-    //static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
-    static URI uri = URI.create("http://localhost:3000");
+    static URI uri = URI.create("http://thootau.synology.me:30000");//建立URI為LocalHost,port:3000
+    // static URI uri = URI.create("http://localhost:3000");
     static IO.Options options = IO.Options.builder()
             .build();
     static Socket socket = IO.socket(uri, options);
